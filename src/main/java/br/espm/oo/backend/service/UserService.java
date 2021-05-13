@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 public class UserService {
@@ -15,14 +17,15 @@ public class UserService {
     private UserRepository userRepository;
 
     public List<UserBean> listAll() {
-        List<UserBean> l = new ArrayList<>();
-        userRepository.findAll().forEach(userModel -> l.add(userModel.to()));
-        return l;
+        return StreamSupport
+                .stream(userRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList())
+                .stream().map(UserModel::to)
+                .collect(Collectors.toList());
     }
 
     public UserBean findBy(UUID id) {
-        Optional<UserModel> um = userRepository.findById(id.toString());
-        return um.isEmpty() ? null : um.get().to();
+        return userRepository.findById(id.toString()).map(userModel -> userModel.to()).orElse(null);
     }
 
     public UserBean create(UserBean user) {
