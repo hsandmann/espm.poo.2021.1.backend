@@ -1,6 +1,9 @@
 package br.espm.oo.backend.service;
 
 import br.espm.oo.backend.datatype.UserBean;
+import br.espm.oo.backend.model.UserModel;
+import br.espm.oo.backend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -8,37 +11,27 @@ import java.util.*;
 @Component
 public class UserService {
 
-    private static Map<UUID, UserBean> users = new HashMap<>();
-
-    static {
-        UserBean u1 = new UserBean(UUID.randomUUID(), "1berto");
-        UserBean u2 = new UserBean(UUID.randomUUID(), "2berto");
-        UserBean u3 = new UserBean(UUID.randomUUID(), "3berto");
-        UserBean u4 = new UserBean(UUID.randomUUID(), "4berto");
-        users.put(u1.getId(), u1);
-        users.put(u2.getId(), u2);
-        users.put(u3.getId(), u3);
-        users.put(u4.getId(), u4);
-    };
+    @Autowired
+    private UserRepository userRepository;
 
     public List<UserBean> listAll() {
-        return new ArrayList<>(users.values());
+        List<UserBean> l = new ArrayList<>();
+        userRepository.findAll().forEach(userModel -> l.add(userModel.to()));
+        return l;
     }
 
     public UserBean findBy(UUID id) {
-        return users.get(id);
+        Optional<UserModel> um = userRepository.findById(id.toString());
+        return um.isEmpty() ? null : um.get().to();
     }
 
     public UserBean create(UserBean user) {
-        if (user.getId() == null) {
-            user.setId(UUID.randomUUID());
-        }
-        users.put(user.getId(), user);
-        return user;
+        user.setId(UUID.randomUUID());
+        return userRepository.save(new UserModel(user)).to();
     }
 
     public void delete(UUID id) {
-        users.remove(id);
+        userRepository.deleteById(id.toString());
     }
 
 }
