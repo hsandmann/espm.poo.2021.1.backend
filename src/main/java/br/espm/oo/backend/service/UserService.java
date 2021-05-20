@@ -25,7 +25,16 @@ public class UserService {
     }
 
     public UserBean findBy(UUID id) {
-        return userRepository.findById(id.toString()).map(userModel -> userModel.to()).orElse(null);
+        return userRepository
+                .findById(id.toString())
+                .map(userModel -> userModel.to())
+                .orElse(null);
+    }
+
+    public List<UserBean> listByName(String name) {
+        return userRepository.listByUserName(name)
+                .stream().map(UserModel::to)
+                .collect(Collectors.toList());
     }
 
     public UserBean create(UserBean user) {

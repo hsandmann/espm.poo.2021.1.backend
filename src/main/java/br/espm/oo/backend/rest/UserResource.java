@@ -10,6 +10,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -25,11 +26,16 @@ public class UserResource {
 
     @GetMapping(path = "/users/{id}")
     public UserBean findBy(@PathVariable UUID id) {
-        UserBean foundUser = userService.findBy(id);
+        UserBean foundUser = Optional.ofNullable(userService.findBy(id)).orElseThrow();
         if (foundUser == null) {
             throw new RecordNotFoundException(id.toString());
         }
         return foundUser;
+    }
+
+    @GetMapping(path = "users/name/{name}")
+    public List<UserBean> listByName(@PathVariable String name) {
+        return userService.listByName(name);
     }
 
     @PostMapping(path = "/users")
